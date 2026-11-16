@@ -1,0 +1,9 @@
+# Use this workspace to collaborate
+workspace:
+  id: ""
+
+localResources:
+  collections:
+    - ../NEXDESK_LAB25_40_PRUEBAS.postman_collection.json
+  environments:
+    - ../NEXDESK_LAB25_40_PRUEBAS.postman_environment.json
