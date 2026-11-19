@@ -653,7 +653,7 @@ export default function Usuarios() {
                               ? "text-bg-success"
                               : obtenerEstado(usuario) === "inactivo"
                                 ? "text-bg-secondary"
-                                : "text-bg-light"
+                                : "bg-body-secondary text-body border"
                           }`}
                         >
                           {obtenerEstado(usuario)}

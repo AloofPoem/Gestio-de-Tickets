@@ -116,7 +116,7 @@ export default function FlujoTickets() {
                         </p>
                     </div>
 
-                    <span className="badge bg-light text-dark border">
+                    <span className="badge  bg-body-secondary text-body border">
                         Gestión de tickets
                     </span>
                 </div>
@@ -196,7 +196,7 @@ export default function FlujoTickets() {
                                         width="155"
                                         height="72"
                                         rx="10"
-                                        fill={activa ? item.color : "#ffffff"}
+                                        style={{ fill: activa ? item.color : "var(--bs-body-bg)" }}
                                         stroke={item.color}
                                         strokeWidth={activa ? 2.5 : 1.5}
                                     />
@@ -217,7 +217,7 @@ export default function FlujoTickets() {
                                         fontSize="11"
                                         fontWeight="700"
                                         textAnchor="middle"
-                                        fill={activa ? item.color : "#334155"}
+                                        style={{ fill: activa ? item.color : "var(--bs-body-color)" }}
                                     >
                                         {item.id}
                                     </text>
@@ -229,7 +229,7 @@ export default function FlujoTickets() {
                                         y={posicion.y + 26}
                                         fontSize="12"
                                         fontWeight="700"
-                                        fill={activa ? "#ffffff" : "#172033"}
+                                        style={{ fill: activa ? "#ffffff" : "var(--bs-emphasis-color)" }}
                                     >
                                         {item.titulo}
                                     </text>
@@ -240,7 +240,7 @@ export default function FlujoTickets() {
                                         x={posicion.x + 12}
                                         y={posicion.y + 51}
                                         fontSize="10"
-                                        fill={activa ? "#ffffff" : "#64748b"}
+                                        style={{ fill: activa ? "#ffffff" : "var(--bs-secondary-color)" }}
                                     >
                                         {item.actorCorto}
                                     </text>
@@ -255,7 +255,7 @@ export default function FlujoTickets() {
                             y="237"
                             textAnchor="middle"
                             fontSize="10"
-                            fill="#64748b"
+                            style={{ fill: "var(--bs-secondary-color)" }}
                         >
                             Selecciona una etapa para explorar el proceso
                         </text>

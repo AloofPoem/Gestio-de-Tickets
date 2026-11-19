@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 import EstadoBackend from "../components/EstadoBackend";
 import { useAuth } from "../hooks/useAuth";
+import ThemeToggle from "../components/ThemeToggle";
 
 export default function Login() {
   // 1. Navegación y autenticación
@@ -65,7 +66,8 @@ export default function Login() {
 
   // 4. Interfaz de inicio de sesión
   return (
-    <div className="min-vh-100 d-flex align-items-center bg-light">
+    <div className="min-vh-100 d-flex align-items-center bg-body-tertiary position-relative">
+      <ThemeToggle className="position-absolute top-0 end-0 m-3" />
       <div className="container">
         <div className="row justify-content-center">
           <div className="col-12 col-md-7 col-lg-5 col-xl-4">
