@@ -55,7 +55,7 @@ app.use(express.json({ limit: "20kb" }));
 
 app.get("/api/estado", (req, res) => {
   return res.status(200).json({
-    servicio: "nexdesk",
+    servicio: "tickio",
     estado: "activo",
   });
 });
@@ -217,7 +217,7 @@ app.use((error, req, res, next) => {
   }
 
   // Registro técnico sin secretos
-  console.error("ERROR NEXDESK:", {
+  console.error("ERROR tickio:", {
     message: error.message,
     code: error.code,
     constraint: error.constraint,

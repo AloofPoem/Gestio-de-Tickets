@@ -7,24 +7,21 @@
 
 body { margin: 0; min-width: 320px; }
 #root { min-height: 100vh; }
-.nexdesk-logo {
+.tickio-logo {
   width: 64px;
   height: 64px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 18px;
-  background: #0d6efd;
+  background: #4f46e5;
   color: white;
   font-size: 2rem;
   font-weight: 800;
 }
 pre { white-space: pre-wrap; overflow-wrap: anywhere; }
 
-
-/* Notificación de bienvenida NEXDESK */
-
-.nexdesk-toast {
+.tickio-toast {
   position: fixed;
   top: 24px;
   right: 24px;
@@ -44,13 +41,13 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; }
   pointer-events: none;
 }
 
-.nexdesk-toast.visible {
+.tickio-toast.visible {
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
 }
 
-.nexdesk-toast-icon {
+.tickio-toast-icon {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -64,7 +61,7 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; }
   font-weight: 700;
 }
 
-.nexdesk-toast-progress {
+.tickio-toast-progress {
   position: absolute;
   bottom: 0;
   left: 0;
@@ -72,53 +69,50 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; }
   width: 100%;
   background: #198754;
   transform-origin: left;
-  animation: nexdesk-progress 4.3s linear forwards;
+  animation: tickio-progress 4.3s linear forwards;
 }
 
-@keyframes nexdesk-progress {
+@keyframes tickio-progress {
   from { transform: scaleX(1); }
   to { transform: scaleX(0); }
 }
 
 @media (max-width: 576px) {
-  .nexdesk-toast {
+  .tickio-toast {
     top: 12px;
     right: 16px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .nexdesk-toast,
-  .nexdesk-toast-progress {
+  .tickio-toast,
+  .tickio-toast-progress {
     transition: none;
     animation: none;
   }
 }
 
-
-/* =========================================
-   NEXDESK - LAB 26.4
-   Layout principal
-========================================= */
-
-.nexdesk-app {
-  min-height: 100vh;
-  background: var(--bs-tertiary-bg);
-}
-
-.nexdesk-sidebar {
+.tickio-sidebar {
   position: fixed;
   inset: 0 auto 0 0;
-  width: 260px;
-  background: #111d35;
+  width: min(320px, 100vw);
+  background: #1e1b4b;
   color: #fff;
-  z-index: 1040;
+  z-index: 1045;
   display: flex;
   flex-direction: column;
-  transition: transform 0.25s ease;
+  transform: translateX(-100%);
+  visibility: hidden;
+  transition: transform 0.3s ease, visibility 0s linear 0.3s;
 }
 
-.nexdesk-sidebar-brand {
+.tickio-sidebar.abierto {
+  transform: translateX(0);
+  visibility: visible;
+  transition: transform 0.3s ease, visibility 0s;
+}
+
+.tickio-sidebar-brand {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -126,22 +120,22 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; }
   border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 
-.nexdesk-sidebar-brand strong {
+.tickio-sidebar-brand strong {
   display: block;
   font-size: 19px;
   letter-spacing: 0.4px;
 }
 
-.nexdesk-sidebar-brand small {
+.tickio-sidebar-brand small {
   display: block;
-  color: #aab7cc;
+  color: #a5b4fc;
   font-size: 11px;
 }
 
-.nexdesk-brand-icon {
+.tickio-brand-icon {
   width: 42px;
   height: 42px;
-  background: #0d6efd;
+  background: #4f46e5;
   border-radius: 12px;
   display: grid;
   place-items: center;
@@ -149,63 +143,63 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; }
   font-size: 23px;
 }
 
-.nexdesk-sidebar-label {
-  color: #8799b5;
+.tickio-sidebar-label {
+  color: #8b93c9;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 1px;
   padding: 28px 22px 12px;
 }
 
-.nexdesk-sidebar-nav {
+.tickio-sidebar-nav {
   padding: 0 12px;
   flex: 1;
   overflow-y: auto;
 }
 
-.nexdesk-nav-link {
+.tickio-nav-link {
   display: flex;
   align-items: center;
   gap: 14px;
   padding: 13px 16px;
   margin-bottom: 5px;
-  color: #b6c5dc;
+  color: #c7d2fe;
   text-decoration: none;
   border-radius: 10px;
   transition: background 0.2s, color 0.2s;
 }
 
-.nexdesk-nav-link:hover {
+.tickio-nav-link:hover {
   color: #fff;
   background: rgba(255,255,255,0.08);
 }
 
-.nexdesk-nav-link.activo {
+.tickio-nav-link.activo {
   color: #fff;
-  background: #0d6efd;
+  background: #4f46e5;
   font-weight: 600;
 }
 
-.nexdesk-nav-icon {
+.tickio-nav-icon {
   width: 24px;
   text-align: center;
   font-size: 19px;
 }
 
-.nexdesk-sidebar-footer {
+.tickio-sidebar-footer {
   padding: 22px;
-  color: #c6d3e5;
+  color: #c7d2fe;
   border-top: 1px solid rgba(255,255,255,0.08);
   font-size: 12px;
 }
 
-.nexdesk-sidebar-footer small {
+.tickio-sidebar-footer small {
   display: block;
-  color: #8194b1;
+  color: #8b93c9;
   margin-top: 4px;
 }
 
-.nexdesk-online-dot {
+.tickio-online-dot {
   display: inline-block;
   width: 8px;
   height: 8px;
@@ -214,12 +208,29 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; }
   margin-right: 7px;
 }
 
-.nexdesk-main {
-  margin-left: 260px;
+.tickio-main {
   min-height: 100vh;
 }
 
-.nexdesk-topbar {
+.tickio-app {
+  min-height: 100vh;
+  background: var(--bs-tertiary-bg);
+  overflow-x: clip;
+}
+
+.tickio-app .card {
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.09);
+}
+
+[data-bs-theme="dark"] .tickio-app .card {
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+}
+
+.tickio-app .card-body {
+  padding: 2rem;
+}
+
+.tickio-topbar {
   min-height: 78px;
   background: var(--bs-body-bg);
   border-bottom: 1px solid var(--bs-border-color);
@@ -230,103 +241,92 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; }
   gap: 16px;
 }
 
-.nexdesk-content {
+.tickio-content {
   padding: 30px;
 }
 
-.nexdesk-avatar {
+.tickio-avatar {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: var(--bs-primary-bg-subtle);
-  color: var(--bs-primary-text-emphasis);
+  background: rgba(99, 102, 241, 0.15);
+  color: #6366f1;
   display: grid;
   place-items: center;
   font-weight: 800;
 }
 
-.nexdesk-menu-toggle {
-  display: none;
+.tickio-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 1040;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0s linear 0.3s;
 }
 
-.nexdesk-overlay {
-  display: none;
+.tickio-overlay.visible {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.3s ease, visibility 0s;
 }
 
-.nexdesk-module-card {
+.tickio-module-card {
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.nexdesk-module-card:hover {
+.tickio-module-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 28px rgba(15,23,42,0.1) !important;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.16);
 }
 
-.nexdesk-module-icon {
+[data-bs-theme="dark"] .tickio-module-card:hover {
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.65);
+}
+
+.tickio-module-icon {
   width: 48px;
   height: 48px;
   border-radius: 13px;
-  background: var(--bs-primary-bg-subtle);
-  color: var(--bs-primary-text-emphasis);
+  background: rgba(99, 102, 241, 0.15);
+  color: #6366f1;
   display: grid;
   place-items: center;
   font-size: 25px;
 }
 
 @media (max-width: 991px) {
-  .nexdesk-sidebar {
-    transform: translateX(-100%);
-  }
-
-  .nexdesk-sidebar.abierto {
-    transform: translateX(0);
-  }
-
-  .nexdesk-main {
-    margin-left: 0;
-  }
-
-  .nexdesk-menu-toggle {
-    display: inline-flex;
-  }
-
-  .nexdesk-overlay {
-    display: block;
-    position: fixed;
-    inset: 0;
-    border: 0;
-    background: rgba(0,0,0,0.5);
-    z-index: 1035;
-  }
-
-  .nexdesk-content {
+  .tickio-content {
     padding: 20px 12px;
   }
 }
 
 @media (max-width: 576px) {
-  .nexdesk-topbar {
+  .tickio-topbar {
     padding: 12px 15px;
   }
 
-  .nexdesk-topbar > div:first-child small,
-  .nexdesk-user-info {
+  .tickio-topbar > div:first-child small,
+  .tickio-user-info {
     display: none;
+  }
+
+  .tickio-app .card-body {
+    padding: 1.35rem;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .nexdesk-sidebar,
-  .nexdesk-module-card,
-  .nexdesk-nav-link {
+  .tickio-sidebar,
+  .tickio-overlay,
+  .tickio-module-card,
+  .tickio-nav-link {
     transition: none;
   }
 }
 
-
-/* LAB 26.4 - Flujo interactivo de tickets */
-
-.nexdesk-flujo-scroll {
+.tickio-flujo-scroll {
   width: 100%;
   overflow-x: auto;
   border: 1px solid var(--bs-border-color);
@@ -335,7 +335,7 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; }
   padding: 8px;
 }
 
-.nexdesk-flujo-svg {
+.tickio-flujo-svg {
   display: block;
   width: 100%;
   max-width: 850px;
@@ -344,36 +344,75 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; }
   margin: 0 auto;
 }
 
-.nexdesk-flujo-nodo {
+.tickio-flujo-nodo {
   cursor: pointer;
   outline: none;
 }
 
-.nexdesk-flujo-nodo rect {
+.tickio-flujo-nodo rect {
   transition: fill 0.2s ease, stroke-width 0.2s ease;
 }
 
-.nexdesk-flujo-nodo:hover rect,
-.nexdesk-flujo-nodo:focus-visible rect {
+.tickio-flujo-nodo:hover rect,
+.tickio-flujo-nodo:focus-visible rect {
   stroke-width: 3;
 }
 
-.nexdesk-flujo-detalle {
+.tickio-flujo-detalle {
   border: 1px solid var(--bs-border-color);
-  border-left: 5px solid #2563eb;
+  border-left: 5px solid #4f46e5;
   border-radius: 12px;
   padding: 20px;
   background: var(--bs-body-bg);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .nexdesk-flujo-nodo rect {
+  .tickio-flujo-nodo rect {
     transition: none;
   }
 }
 
+/* ==========================================
+   TABLAS MODERNAS
+   ========================================== */
+.tickio-table-wrapper {
+  border: 1px solid var(--bs-border-color);
+  border-radius: 14px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  background: var(--bs-body-bg);
+}
 
-/* Modo oscuro: encabezados de tabla (.table-light no se adapta solo) */
+.tickio-table thead th {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--bs-secondary-color);
+  padding-top: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--bs-border-color);
+  white-space: nowrap;
+}
+
+.tickio-table tbody td {
+  padding-top: 16px;
+  padding-bottom: 16px;
+  border-bottom-color: var(--bs-border-color-translucent);
+  font-size: 0.925rem;
+}
+
+.tickio-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.tickio-table.table-hover > tbody > tr:hover > * {
+  --bs-table-bg-state: rgba(79, 70, 229, 0.04);
+}
+
+[data-bs-theme="dark"] .tickio-table.table-hover > tbody > tr:hover > * {
+  --bs-table-bg-state: rgba(99, 102, 241, 0.1);
+}
 
 [data-bs-theme="dark"] .table-light {
   --bs-table-color: var(--bs-body-color);

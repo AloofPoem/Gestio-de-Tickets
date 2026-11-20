@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 
-const CLAVE_TEMA = "nexdesk_theme";
+const CLAVE_TEMA = "tickio_theme";
 const CONSULTA_OSCURO = "(prefers-color-scheme: dark)";
 
 // Preferencia guardada por el usuario ("light" | "dark" | null)

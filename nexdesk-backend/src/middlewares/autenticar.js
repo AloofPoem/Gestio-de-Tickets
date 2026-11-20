@@ -89,7 +89,7 @@ export async function autenticar(req, res, next) {
       !usuario.rol_activo
     ) {
       return res.status(403).json({
-        error: "Cuenta no habilitada en NEXDESK",
+        error: "Cuenta no habilitada en tick.io",
       });
     }
 

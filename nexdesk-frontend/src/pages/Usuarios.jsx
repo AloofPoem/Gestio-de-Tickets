@@ -1,4 +1,3 @@
-
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import ModalNuevoUsuario from "../components/ModalNuevoUsuario";
@@ -17,30 +16,20 @@ import {
   restablecerPasswordUsuario,
 } from "../services/usuarios.service";
 
-// =====================================================
-// 1. FUNCIONES AUXILIARES
-// =====================================================
-
 function extraerUsuarios(datos) {
   if (Array.isArray(datos)) return datos;
   if (Array.isArray(datos?.usuarios)) return datos.usuarios;
   if (Array.isArray(datos?.data)) return datos.data;
-
-  if (Array.isArray(datos?.data?.usuarios)) {
-    return datos.data.usuarios;
-  }
+  if (Array.isArray(datos?.data?.usuarios)) return datos.data.usuarios;
 
   throw new Error(
-    "El formato de respuesta de /api/usuarios no coincide " +
-      "con los formatos admitidos. Revisa la respuesta en Network."
+    "El formato de respuesta de /api/usuarios no coincide con los formatos admitidos."
   );
 }
 
 function obtenerNombre(usuario) {
   return (
-    [usuario.nombre, usuario.apellido]
-      .filter(Boolean)
-      .join(" ") ||
+    [usuario.nombre, usuario.apellido].filter(Boolean).join(" ") ||
     usuario.nombre_completo ||
     "Sin nombre"
   );
@@ -56,33 +45,24 @@ function obtenerEstado(usuario) {
   return "desconocido";
 }
 
-// =====================================================
-// 2. COMPONENTE PRINCIPAL
-// =====================================================
-
 export default function Usuarios() {
   const { token, usuario: usuarioActual } = useAuth();
 
-  // Estados del listado
   const [usuarios, setUsuarios] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
 
-  // Búsqueda y filtros
   const [busqueda, setBusqueda] = useState("");
   const [filtroRol, setFiltroRol] = useState("todos");
   const [filtroEstado, setFiltroEstado] = useState("todos");
 
-  // Recarga
   const [recarga, setRecarga] = useState(0);
 
-  // Registro
   const [modalNuevo, setModalNuevo] = useState(false);
   const [guardando, setGuardando] = useState(false);
   const [errorRegistro, setErrorRegistro] = useState("");
   const [credencialCreada, setCredencialCreada] = useState(null);
 
-  // Edición y cambio de estado
   const [usuarioEditar, setUsuarioEditar] = useState(null);
   const [usuarioEstado, setUsuarioEstado] = useState(null);
 
@@ -90,28 +70,16 @@ export default function Usuarios() {
   const [errorOperacion, setErrorOperacion] = useState("");
   const [mensajeExito, setMensajeExito] = useState("");
 
-  // Restablecimiento de contraseña
   const [usuarioRestablecer, setUsuarioRestablecer] = useState(null);
   const [restableciendo, setRestableciendo] = useState(false);
-  const [
-    errorRestablecimiento,
-    setErrorRestablecimiento,
-  ] = useState("");
-
-  // =====================================================
-  // 3. CONSULTAR USUARIOS
-  // =====================================================
+  const [errorRestablecimiento, setErrorRestablecimiento] = useState("");
 
   useEffect(() => {
     const controlador = new AbortController();
 
     async function cargar() {
       try {
-        const datos = await listarUsuarios(
-          token,
-          controlador.signal
-        );
-
+        const datos = await listarUsuarios(token, controlador.signal);
         const lista = extraerUsuarios(datos);
 
         if (!controlador.signal.aborted) {
@@ -125,7 +93,6 @@ export default function Usuarios() {
               ? err.message
               : "No fue posible consultar los usuarios."
           );
-
           setUsuarios([]);
         }
       } finally {
@@ -136,77 +103,41 @@ export default function Usuarios() {
     }
 
     cargar();
-
     return () => controlador.abort();
   }, [token, recarga]);
 
-  // =====================================================
-  // 4. NOTIFICACIONES DE ÉXITO: 4 SEGUNDOS
-  // =====================================================
-
   useEffect(() => {
     if (!mensajeExito) return;
-
-    const temporizador = setTimeout(() => {
-      setMensajeExito("");
-    }, 4000);
-
+    const temporizador = setTimeout(() => setMensajeExito(""), 4000);
     return () => clearTimeout(temporizador);
   }, [mensajeExito]);
-
-  // =====================================================
-  // 5. ACTUALIZAR LISTADO
-  // =====================================================
 
   const actualizar = useCallback(() => {
     setCargando(true);
     setRecarga((valor) => valor + 1);
   }, []);
 
-  // =====================================================
-  // 6. REGISTRAR USUARIO
-  // =====================================================
-
   async function registrarUsuario(datosFormulario) {
     if (guardando) return;
-
     setGuardando(true);
     setErrorRegistro("");
 
     try {
-      const resultado = await crearUsuario(
-        token,
-        datosFormulario
-      );
-
-      if (
-        !resultado?.usuario ||
-        !resultado?.credencialTemporal
-      ) {
-        throw new Error(
-          "La respuesta del backend no contiene " +
-            "la información esperada."
-        );
+      const resultado = await crearUsuario(token, datosFormulario);
+      if (!resultado?.usuario || !resultado?.credencialTemporal) {
+        throw new Error("La respuesta del backend no contiene la información esperada.");
       }
-
       setModalNuevo(false);
       setCredencialCreada(resultado);
-
       actualizar();
     } catch (err) {
       setErrorRegistro(
-        err instanceof Error
-          ? err.message
-          : "No fue posible registrar el usuario."
+        err instanceof Error ? err.message : "No fue posible registrar el usuario."
       );
     } finally {
       setGuardando(false);
     }
   }
-
-  // =====================================================
-  // 7. EDICIÓN Y CAMBIO DE ESTADO
-  // =====================================================
 
   function abrirEdicion(usuario) {
     setErrorOperacion("");
@@ -222,28 +153,17 @@ export default function Usuarios() {
 
   async function guardarEdicion(datosFormulario) {
     if (!usuarioEditar || procesando) return;
-
     setProcesando(true);
     setErrorOperacion("");
 
     try {
-      await actualizarUsuario(
-        token,
-        usuarioEditar.id,
-        datosFormulario
-      );
-
+      await actualizarUsuario(token, usuarioEditar.id, datosFormulario);
       setUsuarioEditar(null);
-      setMensajeExito(
-        "Datos del usuario actualizados correctamente."
-      );
-
+      setMensajeExito("Datos del usuario actualizados correctamente.");
       actualizar();
     } catch (err) {
       setErrorOperacion(
-        err instanceof Error
-          ? err.message
-          : "No se pudo actualizar el usuario."
+        err instanceof Error ? err.message : "No se pudo actualizar el usuario."
       );
     } finally {
       setProcesando(false);
@@ -252,42 +172,28 @@ export default function Usuarios() {
 
   async function confirmarCambioEstado() {
     if (!usuarioEstado || procesando) return;
-
     setProcesando(true);
     setErrorOperacion("");
 
     const nuevoEstado = !usuarioEstado.activo;
 
     try {
-      await cambiarEstadoUsuario(
-        token,
-        usuarioEstado.id,
-        nuevoEstado
-      );
-
+      await cambiarEstadoUsuario(token, usuarioEstado.id, nuevoEstado);
       setUsuarioEstado(null);
-
       setMensajeExito(
         nuevoEstado
           ? "Cuenta reactivada correctamente."
           : "Cuenta desactivada correctamente."
       );
-
       actualizar();
     } catch (err) {
       setErrorOperacion(
-        err instanceof Error
-          ? err.message
-          : "No se pudo cambiar el estado."
+        err instanceof Error ? err.message : "No se pudo cambiar el estado."
       );
     } finally {
       setProcesando(false);
     }
   }
-
-  // =====================================================
-  // 8. RESTABLECIMIENTO DE CONTRASEÑA
-  // =====================================================
 
   function abrirRestablecimiento(usuario) {
     setErrorRestablecimiento("");
@@ -296,53 +202,29 @@ export default function Usuarios() {
 
   async function confirmarRestablecimiento() {
     if (!usuarioRestablecer || restableciendo) return;
-
     setRestableciendo(true);
     setErrorRestablecimiento("");
 
     try {
-      const resultado = await restablecerPasswordUsuario(
-        token,
-        usuarioRestablecer.id
-      );
-
-      if (
-        !resultado?.usuario ||
-        !resultado?.credencialTemporal
-      ) {
-        throw new Error(
-          "El servidor no devolvió la credencial esperada."
-        );
+      const resultado = await restablecerPasswordUsuario(token, usuarioRestablecer.id);
+      if (!resultado?.usuario || !resultado?.credencialTemporal) {
+        throw new Error("El servidor no devolvió la credencial esperada.");
       }
-
       setUsuarioRestablecer(null);
-
-      // Mostrar credencial temporal al administrador.
       setCredencialCreada(resultado);
-
       actualizar();
     } catch (err) {
       setErrorRestablecimiento(
-        err instanceof Error
-          ? err.message
-          : "No fue posible restablecer la contraseña."
+        err instanceof Error ? err.message : "No fue posible restablecer la contraseña."
       );
     } finally {
       setRestableciendo(false);
     }
   }
 
-  // =====================================================
-  // 9. ROLES DISPONIBLES
-  // =====================================================
-
   const roles = useMemo(() => {
     return [...new Set(usuarios.map(obtenerRol))].sort();
   }, [usuarios]);
-
-  // =====================================================
-  // 10. BÚSQUEDA Y FILTROS
-  // =====================================================
 
   const usuariosFiltrados = useMemo(() => {
     const texto = busqueda.trim().toLowerCase();
@@ -361,74 +243,28 @@ export default function Usuarios() {
 
       return (
         contenido.includes(texto) &&
-        (
-          filtroRol === "todos" ||
-          obtenerRol(usuario) === filtroRol
-        ) &&
-        (
-          filtroEstado === "todos" ||
-          obtenerEstado(usuario) === filtroEstado
-        )
+        (filtroRol === "todos" || obtenerRol(usuario) === filtroRol) &&
+        (filtroEstado === "todos" || obtenerEstado(usuario) === filtroEstado)
       );
     });
-  }, [
-    usuarios,
-    busqueda,
-    filtroRol,
-    filtroEstado,
-  ]);
-
-  // =====================================================
-  // 11. INTERFAZ
-  // =====================================================
+  }, [usuarios, busqueda, filtroRol, filtroEstado]);
 
   return (
     <div className="container-fluid">
-
       {/* ENCABEZADO */}
-
-      <div className="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
-        <div>
-          <div className="text-secondary small mb-1">
-            Inicio / Administración / Usuarios
-          </div>
-
-          <h1 className="h3 fw-bold mb-1">
-            Gestión de usuarios
-          </h1>
-
-          <p className="text-secondary mb-0">
-            Consulta, filtra y administra las cuentas
-            registradas en NEXDESK.
-          </p>
+      <div className="mb-4">
+        <div className="text-secondary small mb-1">
+          Inicio / Administración / Usuarios
         </div>
 
-        <div className="d-flex gap-2 flex-wrap">
-          <button
-            type="button"
-            className="btn btn-outline-primary"
-            onClick={actualizar}
-            disabled={cargando}
-          >
-            {cargando
-              ? "Consultando..."
-              : "Actualizar listado"}
-          </button>
+        <h1 className="h3 fw-bold mb-1">
+          Gestión de usuarios
+        </h1>
 
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => {
-              setErrorRegistro("");
-              setModalNuevo(true);
-            }}
-          >
-            + Nuevo usuario
-          </button>
-        </div>
+        <p className="text-secondary mb-0">
+          Consulta, filtra y administra las cuentas registradas en tick.io.
+        </p>
       </div>
-
-      {/* NOTIFICACIÓN DE ÉXITO */}
 
       {mensajeExito && (
         <div
@@ -436,7 +272,6 @@ export default function Usuarios() {
           role="status"
         >
           {mensajeExito}
-
           <button
             type="button"
             className="btn-close"
@@ -447,54 +282,38 @@ export default function Usuarios() {
       )}
 
       {/* INDICADORES */}
-
       <div className="row g-3 mb-4">
         <div className="col-md-6">
-          <div className="card border-0 shadow-sm rounded-4">
-            <div className="card-body p-3">
-              <div className="text-secondary small">
-                Usuarios recibidos
-              </div>
-
-              <div className="fs-3 fw-bold">
-                {usuarios.length}
-              </div>
+          <div className="card border-0 rounded-4">
+            <div className="card-body">
+              <div className="text-secondary small">Usuarios recibidos</div>
+              <div className="fs-3 fw-bold">{usuarios.length}</div>
             </div>
           </div>
         </div>
 
         <div className="col-md-6">
-          <div className="card border-0 shadow-sm rounded-4">
-            <div className="card-body p-3">
-              <div className="text-secondary small">
-                Resultados filtrados
-              </div>
-
-              <div className="fs-3 fw-bold">
-                {usuariosFiltrados.length}
-              </div>
+          <div className="card border-0 rounded-4">
+            <div className="card-body">
+              <div className="text-secondary small">Resultados filtrados</div>
+              <div className="fs-3 fw-bold">{usuariosFiltrados.length}</div>
             </div>
           </div>
         </div>
       </div>
 
       {/* DIRECTORIO DE USUARIOS */}
-
-      <div className="card border-0 shadow-sm rounded-4">
-        <div className="card-body p-4">
-
+      <div className="card border-0 rounded-4">
+        <div className="card-body">
           <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
-            <h2 className="h5 fw-bold mb-0">
-              Directorio de usuarios
-            </h2>
+            <h2 className="h5 fw-bold mb-0">Directorio de usuarios</h2>
 
-            <span className="badge text-bg-primary">
+            <span className="badge rounded-pill bg-primary-subtle text-primary-emphasis border border-primary-subtle px-3 py-2">
               Rol actual: {obtenerRol(usuarioActual || {})}
             </span>
           </div>
 
           {/* BÚSQUEDA Y FILTROS */}
-
           <div className="row g-2 mb-3">
             <div className="col-lg-6">
               <input
@@ -503,9 +322,7 @@ export default function Usuarios() {
                 placeholder="Buscar por nombre, correo o documento..."
                 aria-label="Buscar usuarios"
                 value={busqueda}
-                onChange={(e) =>
-                  setBusqueda(e.target.value)
-                }
+                onChange={(e) => setBusqueda(e.target.value)}
               />
             </div>
 
@@ -514,14 +331,9 @@ export default function Usuarios() {
                 className="form-select"
                 aria-label="Filtrar por rol"
                 value={filtroRol}
-                onChange={(e) =>
-                  setFiltroRol(e.target.value)
-                }
+                onChange={(e) => setFiltroRol(e.target.value)}
               >
-                <option value="todos">
-                  Todos los roles
-                </option>
-
+                <option value="todos">Todos los roles</option>
                 {roles.map((rol) => (
                   <option key={rol} value={rol}>
                     {rol}
@@ -535,124 +347,112 @@ export default function Usuarios() {
                 className="form-select"
                 aria-label="Filtrar por estado"
                 value={filtroEstado}
-                onChange={(e) =>
-                  setFiltroEstado(e.target.value)
-                }
+                onChange={(e) => setFiltroEstado(e.target.value)}
               >
-                <option value="todos">
-                  Todos los estados
-                </option>
-
-                <option value="activo">
-                  Activos
-                </option>
-
-                <option value="inactivo">
-                  Inactivos
-                </option>
-
-                <option value="desconocido">
-                  Estado no informado
-                </option>
+                <option value="todos">Todos los estados</option>
+                <option value="activo">Activos</option>
+                <option value="inactivo">Inactivos</option>
+                <option value="desconocido">Estado no informado</option>
               </select>
             </div>
           </div>
 
-          {/* ERRORES DE CONSULTA */}
+          {/* BOTONES JUSTO ANTES DE LA TABLA */}
+          <div className="d-flex justify-content-end align-items-center flex-wrap gap-2 mb-3">
+            <button
+              type="button"
+              className="btn btn-outline-secondary rounded-3"
+              onClick={actualizar}
+              disabled={cargando}
+            >
+              {cargando ? "Consultando..." : "↻ Actualizar listado"}
+            </button>
+
+            <button
+              type="button"
+              className="btn btn-primary rounded-3"
+              onClick={() => {
+                setErrorRegistro("");
+                setModalNuevo(true);
+              }}
+            >
+              + Nuevo usuario
+            </button>
+          </div>
 
           {error && (
-            <div
-              className="alert alert-danger"
-              role="alert"
-            >
-              <strong>
-                Error al consultar usuarios.
-              </strong>
-
+            <div className="alert alert-danger" role="alert">
+              <strong>Error al consultar usuarios.</strong>
               <div>{error}</div>
             </div>
           )}
 
           {/* TABLA */}
-
           {cargando ? (
-            <div
-              className="text-center py-5"
-              role="status"
-            >
+            <div className="text-center py-5" role="status">
               <div className="spinner-border text-primary mb-3" />
-
-              <p className="text-secondary">
+              <p className="text-secondary mb-0">
                 Consultando usuarios en la API REST...
               </p>
             </div>
           ) : !error && (
-            <div className="table-responsive">
-              <table className="table table-hover align-middle">
+            <div className="table-responsive tickio-table-wrapper">
+              <table className="table table-hover align-middle tickio-table mb-0">
                 <thead className="table-light">
                   <tr>
-                    <th>ID</th>
+                    <th className="ps-4">ID</th>
                     <th>Usuario</th>
                     <th>Documento</th>
                     <th>Correo</th>
                     <th>Rol</th>
                     <th>Estado</th>
-                    <th className="text-end">
-                      Acciones
-                    </th>
+                    <th className="text-end pe-4">Acciones</th>
                   </tr>
                 </thead>
 
                 <tbody>
                   {usuariosFiltrados.map((usuario) => (
                     <tr key={usuario.id}>
-                      <td>{usuario.id}</td>
+                      <td className="ps-4 text-secondary fw-medium">
+                        #{usuario.id}
+                      </td>
 
                       <td className="fw-semibold">
                         {obtenerNombre(usuario)}
                       </td>
 
-                      {/* DOCUMENTO */}
-
                       <td>
                         {usuario.numero_documento ? (
                           <div>
-                            <span className="fw-semibold">
+                            <span className="fw-medium">
                               {usuario.numero_documento}
                             </span>
-
                             <div className="small text-secondary">
                               {usuario.tipo_documento || "Sin tipo"}
                             </div>
                           </div>
                         ) : (
-                          <span className="text-secondary">
-                            —
-                          </span>
+                          <span className="text-secondary">—</span>
                         )}
                       </td>
 
-                      <td>
+                      <td className="text-secondary">
                         {usuario.email || "—"}
                       </td>
 
-                      {/* ROL */}
-
                       <td>
-                        <span className="badge text-bg-primary">
+                        <span className="badge rounded-pill bg-primary-subtle text-primary-emphasis border border-primary-subtle px-3 py-2">
                           {obtenerRol(usuario)}
                         </span>
                       </td>
 
-                      {/* ESTADO */}
-
                       <td>
                         <span
-                          className={`badge ${
+                          className={`badge rounded-pill px-3 py-2 ${
                             obtenerEstado(usuario) === "activo"
-                              ? "text-bg-success"
+                              ? "bg-success-subtle text-success-emphasis border border-success-subtle"
                               : obtenerEstado(usuario) === "inactivo"
-                                ? "text-bg-secondary"
+                                ? "bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle"
                                 : "bg-body-secondary text-body border"
                           }`}
                         >
@@ -660,29 +460,26 @@ export default function Usuarios() {
                         </span>
                       </td>
 
-                      {/* ACCIONES */}
-
-                      <td className="text-end">
+                      <td className="text-end pe-4">
                         {(() => {
-                          const rolActual = obtenerRol(
-                            usuarioActual || {}
-                          );
-
+                          const rolActual = obtenerRol(usuarioActual || {});
                           const rolObjetivo = obtenerRol(usuario);
 
                           const puedeAdministrar =
                             rolActual === "superadmin" ||
-                            (
-                              rolActual === "admin" &&
-                              !["admin", "superadmin"].includes(
-                                rolObjetivo
-                              )
-                            );
+                            (rolActual === "admin" &&
+                              !["admin", "superadmin"].includes(rolObjetivo));
 
                           const esCuentaPropia =
                             usuarioActual?.id != null &&
-                            String(usuario.id) ===
-                              String(usuarioActual.id);
+                            String(usuario.id) === String(usuarioActual.id);
+
+                          const puedeRestablecer =
+                            !esCuentaPropia &&
+                            rolObjetivo !== "superadmin" &&
+                            (rolActual === "superadmin" ||
+                              (rolActual === "admin" &&
+                                ["tecnico", "usuario"].includes(rolObjetivo)));
 
                           if (!puedeAdministrar) {
                             return (
@@ -693,73 +490,63 @@ export default function Usuarios() {
                           }
 
                           return (
-                            <div className="d-flex justify-content-end gap-2 flex-wrap">
-
-                              {/* EDITAR */}
-
+                            <div className="d-inline-flex align-items-center gap-2">
                               <button
                                 type="button"
-                                className="btn btn-sm btn-outline-primary"
-                                onClick={() =>
-                                  abrirEdicion(usuario)
-                                }
+                                className="btn btn-sm btn-outline-primary rounded-3"
+                                onClick={() => abrirEdicion(usuario)}
                               >
                                 Editar
                               </button>
 
-                              {/* ACTIVAR / DESACTIVAR */}
+                              <div className="dropdown">
+                                <button
+                                  type="button"
+                                  className="btn btn-sm btn-outline-secondary rounded-3"
+                                  data-bs-toggle="dropdown"
+                                  aria-expanded="false"
+                                  aria-label="Más opciones"
+                                >
+                                  ⋮
+                                </button>
 
-                              <button
-                                type="button"
-                                className={`btn btn-sm ${
-                                  usuario.activo
-                                    ? "btn-outline-danger"
-                                    : "btn-outline-success"
-                                }`}
-                                onClick={() =>
-                                  abrirCambioEstado(usuario)
-                                }
-                                disabled={
-                                  (esCuentaPropia && usuario.activo) ||
-                                  typeof usuario.activo !== "boolean"
-                                }
-                                title={
-                                  esCuentaPropia && usuario.activo
-                                    ? "No puedes desactivar tu propia cuenta"
-                                    : undefined
-                                }
-                              >
-                                {usuario.activo
-                                  ? "Desactivar"
-                                  : "Reactivar"}
-                              </button>
+                                <ul className="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                                  <li>
+                                    <button
+                                      type="button"
+                                      className={`dropdown-item ${
+                                        usuario.activo
+                                          ? "text-danger"
+                                          : "text-success"
+                                      }`}
+                                      onClick={() => abrirCambioEstado(usuario)}
+                                      disabled={
+                                        (esCuentaPropia && usuario.activo) ||
+                                        typeof usuario.activo !== "boolean"
+                                      }
+                                    >
+                                      {usuario.activo
+                                        ? "Desactivar cuenta"
+                                        : "Reactivar cuenta"}
+                                    </button>
+                                  </li>
 
-                              {/* RESTABLECER CONTRASEÑA */}
-
-                              {!esCuentaPropia &&
-                                rolObjetivo !== "superadmin" &&
-                                (
-                                  rolActual === "superadmin" ||
-                                  (
-                                    rolActual === "admin" &&
-                                    ["tecnico", "usuario"].includes(
-                                      rolObjetivo
-                                    )
-                                  )
-                                ) && (
-                                  <button
-                                    type="button"
-                                    className="btn btn-sm btn-outline-warning"
-                                    onClick={() =>
-                                      abrirRestablecimiento(usuario)
-                                    }
-                                    disabled={!usuario.activo}
-                                    title="Generar una contraseña temporal"
-                                  >
-                                    Restablecer clave
-                                  </button>
-                                )}
-
+                                  {puedeRestablecer && (
+                                    <li>
+                                      <button
+                                        type="button"
+                                        className="dropdown-item"
+                                        onClick={() =>
+                                          abrirRestablecimiento(usuario)
+                                        }
+                                        disabled={!usuario.activo}
+                                      >
+                                        Restablecer clave
+                                      </button>
+                                    </li>
+                                  )}
+                                </ul>
+                              </div>
                             </div>
                           );
                         })()}
@@ -771,7 +558,7 @@ export default function Usuarios() {
                     <tr>
                       <td
                         colSpan={7}
-                        className="text-center text-secondary py-4"
+                        className="text-center text-secondary py-5"
                       >
                         No se encontraron usuarios con esos filtros.
                       </td>
@@ -783,8 +570,6 @@ export default function Usuarios() {
           )}
         </div>
       </div>
-
-      {/* MODAL DE REGISTRO */}
 
       <ModalNuevoUsuario
         abierto={modalNuevo}
@@ -800,16 +585,10 @@ export default function Usuarios() {
         }}
       />
 
-      {/* CREDENCIAL TEMPORAL */}
-
       <CredencialTemporal
         resultado={credencialCreada}
-        onCerrar={() =>
-          setCredencialCreada(null)
-        }
+        onCerrar={() => setCredencialCreada(null)}
       />
-
-      {/* MODAL DE EDICIÓN */}
 
       {usuarioEditar && (
         <ModalEditarUsuario
@@ -827,8 +606,6 @@ export default function Usuarios() {
         />
       )}
 
-      {/* MODAL DE CAMBIO DE ESTADO */}
-
       {usuarioEstado && (
         <ModalEstadoUsuario
           usuario={usuarioEstado}
@@ -844,8 +621,6 @@ export default function Usuarios() {
         />
       )}
 
-      {/* MODAL DE RESTABLECIMIENTO */}
-
       {usuarioRestablecer && (
         <ModalRestablecerPassword
           usuario={usuarioRestablecer}
@@ -860,7 +635,6 @@ export default function Usuarios() {
           }}
         />
       )}
-
     </div>
   );
-}
+} 

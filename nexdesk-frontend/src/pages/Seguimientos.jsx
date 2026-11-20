@@ -1,4 +1,3 @@
-
 import {
     useCallback,
     useEffect,
@@ -322,8 +321,8 @@ export default function Seguimientos() {
                 {/* PANEL IZQUIERDO */}
 
                 <div className="col-lg-5 col-xl-4">
-                    <div className="card border-0 shadow-sm rounded-4">
-                        <div className="card-body p-3">
+                    <div className="card border-0 rounded-4">
+                        <div className="card-body">
                             <h2 className="h5 fw-bold mb-3">
                                 Tickets disponibles
                             </h2>
@@ -402,7 +401,7 @@ export default function Seguimientos() {
 
                 <div className="col-lg-7 col-xl-8">
                     {!ticketSeleccionado ? (
-                        <div className="card border-0 shadow-sm rounded-4">
+                        <div className="card border-0 rounded-4">
                             <div className="card-body text-center py-5">
                                 <div className="fs-1 mb-3">📋</div>
 
@@ -420,8 +419,8 @@ export default function Seguimientos() {
                         <div className="d-flex flex-column gap-4">
                             {/* INFORMACIÓN DEL TICKET */}
 
-                            <div className="card border-0 shadow-sm rounded-4">
-                                <div className="card-body p-4">
+                            <div className="card border-0 rounded-4">
+                                <div className="card-body">
                                     <div className="d-flex justify-content-between align-items-start gap-3 flex-wrap">
                                         <div>
                                             <div className="small text-secondary">
@@ -433,7 +432,7 @@ export default function Seguimientos() {
                                             </h2>
                                         </div>
 
-                                        <span className="badge text-bg-primary">
+                                        <span className="badge rounded-pill bg-primary-subtle text-primary-emphasis border border-primary-subtle px-3 py-2">
                                             {formatearEstado(
                                                 ticketSeleccionado.estado
                                             )}
@@ -451,8 +450,8 @@ export default function Seguimientos() {
 
                             {/* REGISTRAR OBSERVACIÓN / SOLO CONSULTA */}
 
-                            <div className="card border-0 shadow-sm rounded-4">
-                                <div className="card-body p-4">
+                            <div className="card border-0 rounded-4">
+                                <div className="card-body">
                                     {ticketCerrado ? (
                                         <div className="py-2">
                                             <div className="d-flex align-items-center gap-2 mb-3">
@@ -528,8 +527,8 @@ export default function Seguimientos() {
 
                             {/* HISTORIAL */}
 
-                            <div className="card border-0 shadow-sm rounded-4">
-                                <div className="card-body p-4">
+                            <div className="card border-0 rounded-4">
+                                <div className="card-body">
                                     <div className="d-flex justify-content-between align-items-center gap-2 mb-3">
                                         <h2 className="h5 fw-bold mb-0">
                                             Historial de atención
@@ -537,7 +536,7 @@ export default function Seguimientos() {
 
                                         <button
                                             type="button"
-                                            className="btn btn-sm btn-outline-primary"
+                                            className="btn btn-sm btn-outline-primary rounded-3"
                                             onClick={() => {
                                                 setCargandoHistorial(true);
                                                 actualizarHistorial();

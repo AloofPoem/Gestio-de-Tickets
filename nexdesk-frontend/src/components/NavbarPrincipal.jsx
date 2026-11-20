@@ -4,7 +4,7 @@ import { useAuth } from "../hooks/useAuth";
 import CampanaNotificaciones from "./CampanaNotificaciones";
 import ThemeToggle from "./ThemeToggle.jsx";
 
-export default function NavbarPrincipal({ abrirMenu }) {
+export default function NavbarPrincipal({ abrirMenu, menuAbierto, disparadorRef  }) {
   const { usuario, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -28,7 +28,7 @@ export default function NavbarPrincipal({ abrirMenu }) {
 
   function cerrarSesion() {
     sessionStorage.removeItem(
-      "nexdesk_mostrar_bienvenida"
+      "tickio_mostrar_bienvenida"
     );
 
     logout();
@@ -41,20 +41,24 @@ export default function NavbarPrincipal({ abrirMenu }) {
   // ==========================================
 
   return (
-    <header className="nexdesk-topbar">
+    <header className="tickio-topbar sticky-top bg-body border-bottom">
 
       {/* SECCIÓN IZQUIERDA */}
       <div className="d-flex align-items-center gap-3">
 
+        
+        {/* BOTÓN DEL MENÚ LATERAL */}
         <button
+          ref={disparadorRef}
           type="button"
-          className="btn btn-outline-secondary nexdesk-menu-toggle"
+          className="btn btn-outline-secondary"
           onClick={abrirMenu}
-          aria-label="Abrir menú"
+          aria-label="Abrir menú de navegación"
+          aria-expanded={menuAbierto}
+          aria-controls="tickio-menu-lateral"
         >
           ☰
         </button>
-
         <div>
           <strong className="d-block">
             Panel de gestión
@@ -85,11 +89,11 @@ export default function NavbarPrincipal({ abrirMenu }) {
             data-bs-toggle="dropdown"
             aria-expanded="false"
           >
-            <span className="nexdesk-avatar">
+            <span className="tickio-avatar">
               {inicial}
             </span>
 
-            <span className="text-start nexdesk-user-info">
+            <span className="text-start tickio-user-info">
 
               <strong className="d-block small">
                 {nombreCompleto || "Usuario"}
@@ -141,7 +145,10 @@ export default function NavbarPrincipal({ abrirMenu }) {
 
         </div>
 
+
       </div>
+
+      
 
     </header>
   );

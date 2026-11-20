@@ -1,4 +1,3 @@
-
 import {
   useCallback,
   useEffect,
@@ -18,10 +17,6 @@ import {
   cambiarDisponibilidadTecnico,
 } from "../services/tecnicos.service";
 
-// ============================================
-// 1. FUNCIONES AUXILIARES
-// ============================================
-
 function extraerLista(datos, clave) {
   if (Array.isArray(datos)) return datos;
   if (Array.isArray(datos?.[clave])) return datos[clave];
@@ -33,10 +28,6 @@ function extraerLista(datos, clave) {
 function obtenerRol(usuario) {
   return usuario.rol?.nombre || usuario.rol || "";
 }
-
-// ============================================
-// 2. COMPONENTE PRINCIPAL
-// ============================================
 
 export default function Tecnicos() {
   const { token } = useAuth();
@@ -63,10 +54,6 @@ export default function Tecnicos() {
     setRecarga((anterior) => anterior + 1);
   }, []);
 
-  // ============================================
-  // 3. CONSULTAR TÉCNICOS Y USUARIOS
-  // ============================================
-
   useEffect(() => {
     const controlador = new AbortController();
 
@@ -74,28 +61,19 @@ export default function Tecnicos() {
       setCargando(true);
 
       try {
-        const [datosTecnicos, datosUsuarios] =
-          await Promise.all([
-            listarTecnicos(token, controlador.signal),
-            listarUsuarios(token, controlador.signal),
-          ]);
+        const [datosTecnicos, datosUsuarios] = await Promise.all([
+          listarTecnicos(token, controlador.signal),
+          listarUsuarios(token, controlador.signal),
+        ]);
 
         if (controlador.signal.aborted) return;
 
-        setTecnicos(
-          extraerLista(datosTecnicos, "tecnicos")
-        );
-
-        setUsuarios(
-          extraerLista(datosUsuarios, "usuarios")
-        );
-
+        setTecnicos(extraerLista(datosTecnicos, "tecnicos"));
+        setUsuarios(extraerLista(datosUsuarios, "usuarios"));
         setError("");
       } catch (err) {
         if (!controlador.signal.aborted) {
-          setError(
-            err.message || "Error consultando técnicos"
-          );
+          setError(err.message || "Error consultando técnicos");
         }
       } finally {
         if (!controlador.signal.aborted) {
@@ -105,33 +83,18 @@ export default function Tecnicos() {
     }
 
     if (token) cargar();
-
     return () => controlador.abort();
   }, [token, recarga]);
 
-  // ============================================
-  // 4. NOTIFICACIONES AUTOMÁTICAS
-  // ============================================
-
   useEffect(() => {
     if (!mensaje) return;
-
-    const temporizador = setTimeout(() => {
-      setMensaje("");
-    }, 4000);
-
+    const temporizador = setTimeout(() => setMensaje(""), 4000);
     return () => clearTimeout(temporizador);
   }, [mensaje]);
 
-  // ============================================
-  // 5. USUARIOS ELEGIBLES
-  // ============================================
-
   const usuariosDisponibles = useMemo(() => {
     const vinculados = new Set(
-      tecnicos.map((tecnico) =>
-        Number(tecnico.usuario_id)
-      )
+      tecnicos.map((tecnico) => Number(tecnico.usuario_id))
     );
 
     return usuarios.filter(
@@ -141,10 +104,6 @@ export default function Tecnicos() {
         !vinculados.has(Number(usuario.id))
     );
   }, [usuarios, tecnicos]);
-
-  // ============================================
-  // 6. BÚSQUEDA Y FILTROS
-  // ============================================
 
   const filtrados = useMemo(() => {
     const texto = busqueda.trim().toLowerCase();
@@ -162,10 +121,8 @@ export default function Tecnicos() {
 
       const coincideEstado =
         filtro === "todos" ||
-        (filtro === "disponibles" &&
-          tecnico.disponible) ||
-        (filtro === "no-disponibles" &&
-          !tecnico.disponible);
+        (filtro === "disponibles" && tecnico.disponible) ||
+        (filtro === "no-disponibles" && !tecnico.disponible);
 
       return contenido.includes(texto) && coincideEstado;
     });
@@ -174,10 +131,6 @@ export default function Tecnicos() {
   const disponibles = tecnicos.filter(
     (tecnico) => tecnico.disponible && tecnico.activo
   ).length;
-
-  // ============================================
-  // 7. FORMULARIOS
-  // ============================================
 
   function abrirNuevo() {
     setTecnicoEditar(null);
@@ -191,61 +144,38 @@ export default function Tecnicos() {
     setModalAbierto(true);
   }
 
-  // ============================================
-  // 8. REGISTRAR O ACTUALIZAR
-  // ============================================
-
   async function guardar(datos) {
     if (guardando) return;
-
     setGuardando(true);
     setErrorModal("");
 
     try {
       if (tecnicoEditar) {
-        await actualizarTecnico(
-          token,
-          tecnicoEditar.id,
-          datos
-        );
-
-        setMensaje(
-          "Perfil técnico actualizado correctamente."
-        );
+        await actualizarTecnico(token, tecnicoEditar.id, datos);
+        setMensaje("Perfil técnico actualizado correctamente.");
       } else {
         await crearTecnico(token, datos);
-
-        setMensaje(
-          "Perfil técnico registrado correctamente."
-        );
+        setMensaje("Perfil técnico registrado correctamente.");
       }
 
       setModalAbierto(false);
       setTecnicoEditar(null);
       actualizar();
     } catch (err) {
-      setErrorModal(
-        err.message || "No fue posible guardar"
-      );
+      setErrorModal(err.message || "No fue posible guardar");
     } finally {
       setGuardando(false);
     }
   }
 
-  // ============================================
-  // 9. CAMBIAR DISPONIBILIDAD
-  // ============================================
-
   async function alternarDisponibilidad(tecnico) {
     if (procesandoId !== null) return;
 
     const nuevoEstado = !tecnico.disponible;
-
     const confirmado = window.confirm(
-      `¿Deseas marcar a ${tecnico.nombre} ${tecnico.apellido} ` +
-        `como ${
-          nuevoEstado ? "disponible" : "no disponible"
-        }?`
+      `¿Deseas marcar a ${tecnico.nombre} ${tecnico.apellido} como ${
+        nuevoEstado ? "disponible" : "no disponible"
+      }?`
     );
 
     if (!confirmado) return;
@@ -255,70 +185,32 @@ export default function Tecnicos() {
     setMensaje("");
 
     try {
-      await cambiarDisponibilidadTecnico(
-        token,
-        tecnico.id,
-        nuevoEstado
-      );
-
-      setMensaje(
-        "Disponibilidad actualizada correctamente."
-      );
-
+      await cambiarDisponibilidadTecnico(token, tecnico.id, nuevoEstado);
+      setMensaje("Disponibilidad actualizada correctamente.");
       actualizar();
     } catch (err) {
-      setError(
-        err.message || "No se pudo actualizar"
-      );
+      setError(err.message || "No se pudo actualizar");
     } finally {
       setProcesandoId(null);
     }
   }
 
-  // ============================================
-  // 10. INTERFAZ
-  // ============================================
-
   return (
     <div className="container-fluid">
-      <div className="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
-        <div>
-          <div className="small text-secondary mb-1">
-            Inicio / Administración / Técnicos
-          </div>
-
-          <h1 className="h3 fw-bold mb-1">
-            Gestión de técnicos
-          </h1>
-
-          <p className="text-secondary mb-0">
-            Administra perfiles profesionales y su
-            disponibilidad para la atención de tickets.
-          </p>
+      {/* ENCABEZADO */}
+      <div className="mb-4">
+        <div className="small text-secondary mb-1">
+          Inicio / Administración / Técnicos
         </div>
 
-        <div className="d-flex gap-2 flex-wrap">
-          <button
-            type="button"
-            className="btn btn-outline-primary"
-            onClick={actualizar}
-            disabled={cargando}
-          >
-            Actualizar listado
-          </button>
+        <h1 className="h3 fw-bold mb-1">
+          Gestión de técnicos
+        </h1>
 
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={abrirNuevo}
-            disabled={cargando}
-          >
-            + Nuevo técnico
-          </button>
-        </div>
+        <p className="text-secondary mb-0">
+          Administra perfiles profesionales y su disponibilidad para la atención de tickets.
+        </p>
       </div>
-
-      {/* ERRORES */}
 
       {error && (
         <div className="alert alert-danger" role="alert">
@@ -326,15 +218,12 @@ export default function Tecnicos() {
         </div>
       )}
 
-      {/* ÉXITO: DESAPARECE EN 4 SEGUNDOS */}
-
       {mensaje && (
         <div
           className="alert alert-success alert-dismissible fade show"
           role="status"
         >
           {mensaje}
-
           <button
             type="button"
             className="btn-close"
@@ -345,27 +234,18 @@ export default function Tecnicos() {
       )}
 
       {/* INDICADORES */}
-
       <div className="row g-3 mb-4">
         {[
           ["Perfiles registrados", tecnicos.length],
           ["Disponibles y activos", disponibles],
-          [
-            "No disponibles",
-            tecnicos.filter((t) => !t.disponible).length,
-          ],
+          ["No disponibles", tecnicos.filter((t) => !t.disponible).length],
           ["Usuarios elegibles", usuariosDisponibles.length],
         ].map(([titulo, valor]) => (
           <div className="col-6 col-xl-3" key={titulo}>
-            <div className="card border-0 shadow-sm h-100">
+            <div className="card border-0 rounded-4 h-100">
               <div className="card-body">
-                <div className="small text-secondary">
-                  {titulo}
-                </div>
-
-                <div className="h3 fw-bold mb-0 mt-2">
-                  {valor}
-                </div>
+                <div className="small text-secondary">{titulo}</div>
+                <div className="h3 fw-bold mb-0 mt-2">{valor}</div>
               </div>
             </div>
           </div>
@@ -373,66 +253,74 @@ export default function Tecnicos() {
       </div>
 
       {/* DIRECTORIO DE TÉCNICOS */}
-
-      <div className="card border-0 shadow-sm rounded-4">
+      <div className="card border-0 rounded-4">
         <div className="card-body">
           <div className="row g-3 mb-3">
             <div className="col-md-8">
-              <label
-                className="form-label"
-                htmlFor="buscar-tecnico"
-              >
+              <label className="form-label" htmlFor="buscar-tecnico">
                 Buscar técnico
               </label>
-
               <input
                 id="buscar-tecnico"
                 className="form-control"
                 placeholder="Nombre, correo o especialidad"
                 value={busqueda}
-                onChange={(e) =>
-                  setBusqueda(e.target.value)
-                }
+                onChange={(e) => setBusqueda(e.target.value)}
               />
             </div>
 
             <div className="col-md-4">
-              <label
-                className="form-label"
-                htmlFor="filtro-tecnico"
-              >
+              <label className="form-label" htmlFor="filtro-tecnico">
                 Disponibilidad
               </label>
-
               <select
                 id="filtro-tecnico"
                 className="form-select"
                 value={filtro}
-                onChange={(e) =>
-                  setFiltro(e.target.value)
-                }
+                onChange={(e) => setFiltro(e.target.value)}
               >
                 <option value="todos">Todos</option>
-                <option value="disponibles">
-                  Disponibles
-                </option>
-                <option value="no-disponibles">
-                  No disponibles
-                </option>
+                <option value="disponibles">Disponibles</option>
+                <option value="no-disponibles">No disponibles</option>
               </select>
             </div>
           </div>
 
-          <div className="table-responsive">
-            <table className="table table-hover align-middle">
+          {/* BOTONES JUSTO ANTES DE LA TABLA */}
+          <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+            <h2 className="h5 fw-bold mb-0">Directorio de técnicos</h2>
+
+            <div className="d-flex flex-wrap gap-2">
+              <button
+                type="button"
+                className="btn btn-outline-secondary rounded-3"
+                onClick={actualizar}
+                disabled={cargando}
+              >
+                {cargando ? "Consultando..." : "↻ Actualizar listado"}
+              </button>
+
+              <button
+                type="button"
+                className="btn btn-primary rounded-3"
+                onClick={abrirNuevo}
+                disabled={cargando}
+              >
+                + Nuevo técnico
+              </button>
+            </div>
+          </div>
+
+          <div className="table-responsive tickio-table-wrapper">
+            <table className="table table-hover align-middle tickio-table mb-0">
               <thead className="table-light">
                 <tr>
-                  <th>ID</th>
+                  <th className="ps-4">ID</th>
                   <th>Técnico</th>
                   <th>Especialidad</th>
                   <th>Cuenta</th>
                   <th>Disponibilidad</th>
-                  <th className="text-end">Acciones</th>
+                  <th className="text-end pe-4">Acciones</th>
                 </tr>
               </thead>
 
@@ -440,106 +328,89 @@ export default function Tecnicos() {
                 {!cargando &&
                   filtrados.map((tecnico) => (
                     <tr key={tecnico.id}>
-                      <td>{tecnico.id}</td>
+                      <td className="ps-4 text-secondary fw-medium">
+                        #{tecnico.id}
+                      </td>
 
                       <td>
                         <div className="fw-semibold">
-                          {tecnico.nombre}{" "}
-                          {tecnico.apellido}
+                          {tecnico.nombre} {tecnico.apellido}
                         </div>
-
                         <div className="small text-secondary">
                           {tecnico.email}
                         </div>
                       </td>
 
-                      <td>{tecnico.especialidad}</td>
+                      <td className="text-secondary">
+                        {tecnico.especialidad}
+                      </td>
 
                       <td>
                         <span
-                          className={`badge ${
+                          className={`badge rounded-pill px-3 py-2 ${
                             tecnico.activo
-                              ? "text-bg-success"
-                              : "text-bg-secondary"
+                              ? "bg-success-subtle text-success-emphasis border border-success-subtle"
+                              : "bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle"
                           }`}
                         >
-                          {tecnico.activo
-                            ? "Activa"
-                            : "Inactiva"}
+                          {tecnico.activo ? "Activa" : "Inactiva"}
                         </span>
                       </td>
 
                       <td>
                         <span
-                          className={`badge ${
+                          className={`badge rounded-pill px-3 py-2 ${
                             tecnico.disponible
-                              ? "text-bg-primary"
-                              : "text-bg-secondary"
+                              ? "bg-primary-subtle text-primary-emphasis border border-primary-subtle"
+                              : "bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle"
                           }`}
                         >
-                          {tecnico.disponible
-                            ? "Disponible"
-                            : "No disponible"}
+                          {tecnico.disponible ? "Disponible" : "No disponible"}
                         </span>
                       </td>
 
-                      <td className="text-end">
-                        <div className="d-flex justify-content-end flex-wrap gap-2">
+                      <td className="text-end pe-4">
+                        <div className="d-flex justify-content-end flex-nowrap gap-2">
                           <button
                             type="button"
-                            className="btn btn-sm btn-outline-primary"
-                            onClick={() =>
-                              abrirEdicion(tecnico)
-                            }
+                            className="btn btn-sm btn-outline-primary rounded-3"
+                            onClick={() => abrirEdicion(tecnico)}
                           >
                             Editar
                           </button>
 
                           <button
                             type="button"
-                            className={`btn btn-sm ${
+                            className={`btn btn-sm rounded-3 ${
                               tecnico.disponible
                                 ? "btn-outline-warning"
                                 : "btn-outline-success"
                             }`}
-                            onClick={() =>
-                              alternarDisponibilidad(
-                                tecnico
-                              )
-                            }
-                            disabled={
-                              procesandoId !== null
-                            }
+                            onClick={() => alternarDisponibilidad(tecnico)}
+                            disabled={procesandoId !== null}
                           >
                             {procesandoId === tecnico.id
                               ? "Procesando..."
                               : tecnico.disponible
-                                ? "No disponible"
-                                : "Disponible"}
+                                ? "Marcar no disponible"
+                                : "Marcar disponible"}
                           </button>
                         </div>
                       </td>
                     </tr>
                   ))}
 
-                {!cargando &&
-                  filtrados.length === 0 && (
-                    <tr>
-                      <td
-                        colSpan={6}
-                        className="text-center text-secondary py-4"
-                      >
-                        No se encontraron perfiles técnicos.
-                      </td>
-                    </tr>
-                  )}
+                {!cargando && filtrados.length === 0 && (
+                  <tr>
+                    <td colSpan={6} className="text-center text-secondary py-5">
+                      No se encontraron perfiles técnicos.
+                    </td>
+                  </tr>
+                )}
 
                 {cargando && (
                   <tr>
-                    <td
-                      colSpan={6}
-                      className="text-center py-4"
-                    >
+                    <td colSpan={6} className="text-center text-secondary py-5">
                       Consultando técnicos...
                     </td>
                   </tr>
@@ -548,14 +419,11 @@ export default function Tecnicos() {
             </table>
           </div>
 
-          <div className="small text-secondary">
-            Mostrando {filtrados.length} de{" "}
-            {tecnicos.length} perfiles.
+          <div className="small text-secondary mt-3">
+            Mostrando {filtrados.length} de {tecnicos.length} perfiles.
           </div>
         </div>
       </div>
-
-      {/* MODAL */}
 
       {modalAbierto && (
         <ModalTecnico

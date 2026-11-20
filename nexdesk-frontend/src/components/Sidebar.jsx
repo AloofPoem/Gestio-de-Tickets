@@ -1,4 +1,4 @@
-
+import { useEffect, useRef } from "react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { menuPorRol } from "../config/menu";
@@ -6,54 +6,80 @@ import { menuPorRol } from "../config/menu";
 export default function Sidebar({ abierto, cerrar }) {
   const { usuario } = useAuth();
   const opciones = menuPorRol(usuario?.rol);
+  const botonCerrarRef = useRef(null);
+
+  useEffect(() => {
+    if (!abierto) return;
+
+    const alPresionarTecla = (evento) => {
+      if (evento.key === "Escape") cerrar();
+    };
+
+    const overflowPrevio = document.body.style.overflow;
+
+    document.addEventListener("keydown", alPresionarTecla);
+    document.body.style.overflow = "hidden";
+    botonCerrarRef.current?.focus();
+
+    return () => {
+      document.removeEventListener("keydown", alPresionarTecla);
+      document.body.style.overflow = overflowPrevio;
+    };
+  }, [abierto, cerrar]);
 
   return (
     <>
-      {abierto && (
-        <button
-          type="button"
-          className="nexdesk-overlay"
-          onClick={cerrar}
-          aria-label="Cerrar menú"
-        />
-      )}
+      <div
+        className={`tickio-overlay ${abierto ? "visible" : ""}`}
+        onClick={cerrar}
+        aria-hidden="true"
+      />
 
       <aside
-        className={`nexdesk-sidebar ${abierto ? "abierto" : ""}`}
-        aria-label="Navegación principal"
+        id="tickio-menu-lateral"
+        className={`tickio-sidebar ${abierto ? "abierto" : ""}`}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Menú de navegación"
+        inert={!abierto}
       >
-        <div className="nexdesk-sidebar-brand">
-          <span className="nexdesk-brand-icon">N</span>
+        <div className="tickio-sidebar-brand">
+          <span className="tickio-brand-icon">N</span>
           <div>
             <strong>NEXDESK</strong>
             <small>Sistema de soporte</small>
           </div>
+
+          <button
+            ref={botonCerrarRef}
+            type="button"
+            className="btn-close ms-auto"
+            data-bs-theme="dark"
+            onClick={cerrar}
+            aria-label="Cerrar menú"
+          />
         </div>
 
-        <div className="nexdesk-sidebar-label">
-          MENÚ PRINCIPAL
-        </div>
+        <div className="tickio-sidebar-label">MENÚ PRINCIPAL</div>
 
-        <nav className="nexdesk-sidebar-nav">
+        <nav className="tickio-sidebar-nav" aria-label="Navegación principal">
           {opciones.map((opcion) => (
             <NavLink
               key={opcion.ruta}
               to={opcion.ruta}
               onClick={cerrar}
               className={({ isActive }) =>
-                `nexdesk-nav-link ${isActive ? "activo" : ""}`
+                `tickio-nav-link ${isActive ? "activo" : ""}`
               }
             >
-              <span className="nexdesk-nav-icon">
-                {opcion.icono}
-              </span>
+              <span className="tickio-nav-icon">{opcion.icono}</span>
               <span>{opcion.titulo}</span>
             </NavLink>
           ))}
         </nav>
 
-        <div className="nexdesk-sidebar-footer">
-          <span className="nexdesk-online-dot" />
+        <div className="tickio-sidebar-footer">
+          <span className="tickio-online-dot" />
           Sistema de soporte
           <small>Helpdesk Organizacional para empresas</small>
         </div>
